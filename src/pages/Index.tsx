@@ -1,12 +1,57 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+import { useState } from 'react';
+import { HeroSection } from '@/components/landing/HeroSection';
+import { ProductSection } from '@/components/landing/ProductSection';
+import { FAQSection } from '@/components/landing/FAQSection';
+import { ContactSection } from '@/components/landing/ContactSection';
+import { Footer } from '@/components/landing/Footer';
+import { OrderForm } from '@/components/landing/OrderForm';
+import { ThankYouDialog } from '@/components/landing/ThankYouDialog';
+import { POClosedBanner } from '@/components/landing/POClosedBanner';
+import type { Product } from '@/lib/types';
 
 const Index = () => {
+  const [orderFormOpen, setOrderFormOpen] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [thankYouOpen, setThankYouOpen] = useState(false);
+  const [orderCode, setOrderCode] = useState('');
+
+  const handleOrderClick = () => {
+    setSelectedProduct(null);
+    setOrderFormOpen(true);
+  };
+
+  const handleSelectProduct = (product: Product) => {
+    setSelectedProduct(product);
+    setOrderFormOpen(true);
+  };
+
+  const handleOrderSuccess = (code: string) => {
+    setOrderFormOpen(false);
+    setOrderCode(code);
+    setThankYouOpen(true);
+  };
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background">
-      <div className="text-center">
-        <h1 className="mb-4 text-4xl font-bold">Welcome to Your Blank App</h1>
-        <p className="text-xl text-muted-foreground">Start building your amazing project here!</p>
-      </div>
+    <div className="min-h-screen">
+      <POClosedBanner />
+      <HeroSection onOrderClick={handleOrderClick} />
+      <ProductSection onSelectProduct={handleSelectProduct} />
+      <FAQSection />
+      <ContactSection />
+      <Footer />
+
+      <OrderForm
+        open={orderFormOpen}
+        onOpenChange={setOrderFormOpen}
+        selectedProduct={selectedProduct}
+        onSuccess={handleOrderSuccess}
+      />
+
+      <ThankYouDialog
+        open={thankYouOpen}
+        onOpenChange={setThankYouOpen}
+        orderCode={orderCode}
+      />
     </div>
   );
 };
