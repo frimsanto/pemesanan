@@ -5,8 +5,9 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { CheckCircle, Copy, Home } from 'lucide-react';
-import { toast } from 'sonner';
+import { CheckCircle, Copy, Home, Search } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import Swal from 'sweetalert2';
 
 interface ThankYouDialogProps {
   open: boolean;
@@ -17,7 +18,12 @@ interface ThankYouDialogProps {
 export function ThankYouDialog({ open, onOpenChange, orderCode }: ThankYouDialogProps) {
   const copyOrderCode = () => {
     navigator.clipboard.writeText(orderCode);
-    toast.success('Kode pesanan disalin!');
+    Swal.fire({
+      icon: 'success',
+      title: 'Kode pesanan disalin!',
+      timer: 1200,
+      showConfirmButton: false,
+    });
   };
 
   return (
@@ -48,21 +54,38 @@ export function ThankYouDialog({ open, onOpenChange, orderCode }: ThankYouDialog
             </div>
           </div>
 
-          <div className="bg-warning/10 border border-warning/30 rounded-lg p-4">
-            <p className="text-sm text-warning">
+          <div className="bg-warning/10 border border-warning/30 rounded-lg p-4 space-y-2 text-sm">
+            <p className="text-warning">
               Simpan kode pesanan ini untuk melacak status pesanan Anda.
+            </p>
+            <p className="text-warning/80">
+              Anda dapat mengecek status kapan saja di halaman "Lacak Pesanan".
             </p>
           </div>
 
-          <Button
-            variant="default"
-            size="lg"
-            className="w-full"
-            onClick={() => onOpenChange(false)}
-          >
-            <Home className="w-5 h-5 mr-2" />
-            Kembali ke Beranda
-          </Button>
+          <div className="flex flex-col sm:flex-row gap-3">
+            <Button
+              variant="outline"
+              size="lg"
+              className="w-full"
+              asChild
+              onClick={() => onOpenChange(false)}
+            >
+              <Link to={`/track-order?code=${encodeURIComponent(orderCode)}`}>
+                <Search className="w-5 h-5 mr-2" />
+                Cek Status Pesanan
+              </Link>
+            </Button>
+            <Button
+              variant="default"
+              size="lg"
+              className="w-full"
+              onClick={() => onOpenChange(false)}
+            >
+              <Home className="w-5 h-5 mr-2" />
+              Kembali ke Beranda
+            </Button>
+          </div>
         </div>
       </DialogContent>
     </Dialog>

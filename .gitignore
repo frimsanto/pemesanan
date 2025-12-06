@@ -12,6 +12,23 @@ dist
 dist-ssr
 *.local
 
+# Env & secrets
+.env
+.env.*
+*.env.local
+
+# Database dumps
+*.sql
+*.sqlite
+
+# Vite / tooling artifacts
+*.tsbuildinfo
+vite.config.ts.timestamp-*
+
+# Package manager caches
+pnpm-lock.yaml
+*.tsbuildinfo
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

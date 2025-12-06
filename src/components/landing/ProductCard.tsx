@@ -8,9 +8,13 @@ interface ProductCardProps {
   product: Product;
   variants: ProductVariant[];
   onSelect: (product: Product) => void;
+  displayName?: string;
+  imageOverride?: string;
+  variantFilter?: (variant: ProductVariant) => boolean;
+  priceOverride?: number;
 }
 
-export function ProductCard({ product, variants, onSelect }: ProductCardProps) {
+export function ProductCard({ product, variants, onSelect, displayName, imageOverride, variantFilter, priceOverride }: ProductCardProps) {
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('id-ID', {
       style: 'currency',
@@ -19,13 +23,33 @@ export function ProductCard({ product, variants, onSelect }: ProductCardProps) {
     }).format(price);
   };
 
+  // Pilih gambar default berdasarkan jenis produk jika image_url kosong
+  const getFallbackImage = () => {
+    const name = product.name.toLowerCase();
+    // Bandeng cup (300ml) pakai gambar Cup300ml
+    if (name.includes('cup') || name.includes('300')) {
+      return '/img/Cup300ml.jpg';
+    }
+    // Produk bandeng lain pakai Bandeng utuh
+    if (name.includes('bandeng')) {
+      return '/img/Bandeng_utuh.jpg';
+    }
+    // Produk topping lain bisa diatur nanti jika perlu
+    return undefined;
+  };
+
+  const imageSrc = imageOverride || product.image_url || getFallbackImage();
+
+  const title = displayName || product.name;
+  const displayPrice = typeof priceOverride === 'number' ? priceOverride : product.price;
+
   return (
     <Card className="group overflow-hidden border-border/50 hover:border-accent/50 transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
       {/* Image */}
       <div className="relative aspect-square overflow-hidden bg-muted">
-        {product.image_url ? (
+        {imageSrc ? (
           <img
-            src={product.image_url}
+            src={imageSrc}
             alt={product.name}
             className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
           />
@@ -58,7 +82,7 @@ export function ProductCard({ product, variants, onSelect }: ProductCardProps) {
       {/* Content */}
       <CardContent className="p-5 space-y-3">
         <div>
-          <h3 className="font-bold text-lg text-foreground line-clamp-1">{product.name}</h3>
+          <h3 className="font-bold text-lg text-foreground line-clamp-1">{title}</h3>
           {product.description && (
             <p className="text-sm text-muted-foreground mt-1 line-clamp-2">
               {product.description}
@@ -66,27 +90,11 @@ export function ProductCard({ product, variants, onSelect }: ProductCardProps) {
           )}
         </div>
 
-        {/* Variants */}
-        {variants.length > 0 && (
-          <div className="flex flex-wrap gap-1.5">
-            {variants.slice(0, 4).map((variant) => (
-              <Badge key={variant.id} variant="outline" className="text-xs">
-                {variant.name}
-              </Badge>
-            ))}
-            {variants.length > 4 && (
-              <Badge variant="outline" className="text-xs">
-                +{variants.length - 4} lainnya
-              </Badge>
-            )}
-          </div>
-        )}
-
         {/* Price */}
         <div className="flex items-center justify-between pt-2">
           <div>
             <p className="text-xs text-muted-foreground">Mulai dari</p>
-            <p className="text-xl font-bold text-primary">{formatPrice(product.price)}</p>
+            <p className="text-xl font-bold text-primary">{formatPrice(displayPrice)}</p>
           </div>
           <Button variant="outline" size="sm" onClick={() => onSelect(product)}>
             Pilih

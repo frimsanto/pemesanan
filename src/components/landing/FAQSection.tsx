@@ -36,19 +36,20 @@ const faqs = [
 
 export function FAQSection() {
   return (
-    <section id="faq" className="py-20 bg-muted/50">
+    <section id="faq" className="py-20 bg-transparent">
       <div className="container mx-auto px-4">
-        <div className="max-w-3xl mx-auto">
+        <div className="max-w-3xl mx-auto rounded-3xl bg-card shadow-xl border border-border/60 px-5 py-10 md:px-8 md:py-12">
           {/* Header */}
-          <div className="text-center mb-12">
+          <div className="text-center mb-8">
             <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-accent/10 text-accent mb-4">
               <HelpCircle className="w-7 h-7" />
             </div>
-            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-2">
               Pertanyaan Umum
             </h2>
-            <p className="text-muted-foreground">
-              Temukan jawaban untuk pertanyaan yang sering diajukan
+            <div className="h-1 w-16 bg-accent rounded-full mx-auto mb-3" />
+            <p className="text-muted-foreground text-sm md:text-base">
+              Temukan jawaban untuk pertanyaan yang sering diajukan seputar pre-order di DnF.
             </p>
           </div>
 

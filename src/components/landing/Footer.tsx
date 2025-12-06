@@ -39,7 +39,14 @@ export function Footer() {
 
         <div className="mt-8 pt-8 border-t border-primary-foreground/20 text-center">
           <p className="text-sm text-primary-foreground/60">
-            © {new Date().getFullYear()} PreOrder System. All rights reserved.
+            © {new Date().getFullYear()} PreOrder System. Presented by:{' '}
+            <a
+              href="#"
+              className="font-semibold underline-offset-2 hover:underline"
+              title="Nusantara Generate Source"
+            >
+              NGS
+            </a>
           </p>
         </div>
       </div>

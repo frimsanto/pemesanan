@@ -14,16 +14,17 @@ export function ContactSection() {
   };
 
   return (
-    <section id="contact" className="py-20 bg-background">
+    <section id="contact" className="py-20 bg-transparent">
       <div className="container mx-auto px-4">
         <div className="max-w-4xl mx-auto">
           {/* Header */}
-          <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+          <div className="text-center mb-10">
+            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-2">
               Butuh Bantuan?
             </h2>
-            <p className="text-muted-foreground">
-              Hubungi kami jika ada pertanyaan atau kendala
+            <div className="h-1 w-16 bg-accent rounded-full mx-auto mb-3" />
+            <p className="text-muted-foreground text-sm md:text-base">
+              Hubungi kami jika ada pertanyaan atau kendala seputar pemesanan dan pengiriman.
             </p>
           </div>
 
@@ -75,13 +76,13 @@ export function ContactSection() {
                     </div>
                     <div>
                       <p className="text-sm text-muted-foreground">Email</p>
-                      <p className="font-semibold text-foreground">support@preorder.com</p>
+                      <p className="font-semibold text-foreground">desnitayulianti200@gmail.com</p>
                     </div>
                   </div>
                 </div>
 
                 <p className="text-sm text-muted-foreground pt-4 border-t border-border">
-                  Jam operasional: Senin - Sabtu, 09:00 - 18:00 WIB
+                  Jam operasional: Senin - Sabtu, 09:00 - 21:00 WIB
                 </p>
               </CardContent>
             </Card>

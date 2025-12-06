@@ -1,15 +1,19 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import { User, Session } from '@supabase/supabase-js';
-import { supabase } from '@/integrations/supabase/client';
-import type { UserRole } from '@/lib/types';
+import { API_BASE_URL } from '@/lib/api';
+
+type AuthRole = 'admin' | 'super_admin';
+
+interface AuthUser {
+  id: number;
+  name: string;
+  email: string;
+}
 
 interface AuthContextType {
-  user: User | null;
-  session: Session | null;
+  user: AuthUser | null;
   loading: boolean;
-  role: 'admin' | 'super_admin' | null;
+  role: AuthRole | null;
   signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
-  signUp: (email: string, password: string, name: string) => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
   isAdmin: boolean;
   isSuperAdmin: boolean;
@@ -18,89 +22,73 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
-  const [session, setSession] = useState<Session | null>(null);
+  const [user, setUser] = useState<AuthUser | null>(null);
+  const [role, setRole] = useState<AuthRole | null>(null);
   const [loading, setLoading] = useState(true);
-  const [role, setRole] = useState<'admin' | 'super_admin' | null>(null);
-
-  const fetchUserRole = async (userId: string) => {
-    try {
-      const { data, error } = await supabase
-        .from('user_roles')
-        .select('role')
-        .eq('user_id', userId)
-        .eq('is_active', true)
-        .maybeSingle();
-
-      if (error) {
-        console.error('Error fetching user role:', error);
-        return null;
-      }
-
-      return data?.role as 'admin' | 'super_admin' | null;
-    } catch (err) {
-      console.error('Error in fetchUserRole:', err);
-      return null;
-    }
-  };
 
   useEffect(() => {
-    // Set up auth state listener FIRST
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        setSession(session);
-        setUser(session?.user ?? null);
-
-        // Defer role fetching to avoid deadlock
-        if (session?.user) {
-          setTimeout(() => {
-            fetchUserRole(session.user.id).then(setRole);
-          }, 0);
-        } else {
-          setRole(null);
-        }
+    // Load from localStorage on first mount
+    const stored = localStorage.getItem('auth_user');
+    const storedRole = localStorage.getItem('auth_role') as AuthRole | null;
+    if (stored) {
+      try {
+        const parsed = JSON.parse(stored) as AuthUser;
+        setUser(parsed);
+      } catch {
+        // ignore
       }
-    );
-
-    // THEN check for existing session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      
-      if (session?.user) {
-        fetchUserRole(session.user.id).then(setRole);
-      }
-      setLoading(false);
-    });
-
-    return () => subscription.unsubscribe();
+    }
+    if (storedRole) {
+      setRole(storedRole);
+    }
+    setLoading(false);
   }, []);
 
   const signIn = async (email: string, password: string) => {
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-    return { error };
-  };
+    try {
+      const res = await fetch(`${API_BASE_URL}/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ email, password }),
+      });
 
-  const signUp = async (email: string, password: string, name: string) => {
-    const redirectUrl = `${window.location.origin}/`;
-    
-    const { error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        emailRedirectTo: redirectUrl,
-        data: { name },
-      },
-    });
-    return { error };
+      const data = (await res.json().catch(() => null)) as
+        | { success?: boolean; message?: string; error?: string; data?: { id: number; name: string; email: string; role: AuthRole } }
+        | null;
+
+      if (!res.ok || !data || data.success === false || !data.data) {
+        const message = data?.message || (data as any)?.error || 'Email atau password salah';
+        return { error: new Error(message) };
+      }
+
+      const safe = data.data;
+
+      const authUser: AuthUser = {
+        id: safe.id,
+        name: safe.name,
+        email: safe.email,
+      };
+
+      setUser(authUser);
+      setRole(safe.role);
+      localStorage.setItem('auth_user', JSON.stringify(authUser));
+      localStorage.setItem('auth_role', safe.role);
+
+      return { error: null };
+    } catch (err: any) {
+      if (err instanceof TypeError) {
+        return { error: new Error('Tidak dapat terhubung ke server. Periksa koneksi atau coba lagi.') };
+      }
+      return { error: err instanceof Error ? err : new Error('Login gagal') };
+    }
   };
 
   const signOut = async () => {
-    await supabase.auth.signOut();
+    setUser(null);
     setRole(null);
+    localStorage.removeItem('auth_user');
+    localStorage.removeItem('auth_role');
   };
 
   const isAdmin = role === 'admin' || role === 'super_admin';
@@ -110,11 +98,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     <AuthContext.Provider
       value={{
         user,
-        session,
         loading,
         role,
         signIn,
-        signUp,
         signOut,
         isAdmin,
         isSuperAdmin,

@@ -55,6 +55,18 @@ export interface Settings {
   po_end_date: string;
   terms: string;
   max_order_quantity: string;
+  landing_logo_url: string;
+  landing_brand_title: string;
+  landing_brand_subtitle: string;
+  landing_hero_title_line1: string;
+  landing_hero_title_line2: string;
+  landing_hero_description: string;
+  landing_teaser_main_title: string;
+  landing_teaser_main_subtitle: string;
+  landing_teaser_col1_title: string;
+  landing_teaser_col1_body: string;
+  landing_teaser_col2_title: string;
+  landing_teaser_col2_body: string;
 }
 
 export interface Profile {
