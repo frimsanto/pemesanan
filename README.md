@@ -47,7 +47,3 @@ Output build akan berada di folder `dist/` dan bisa dideploy ke layanan hosting 
 
 - Gunakan branch terpisah untuk setiap fitur atau perbaikan bug.
 - Buat pull request dengan deskripsi perubahan yang jelas.
-
-## Lisensi
-
-Tambahkan informasi lisensi di sini (misalnya MIT, GPL, atau lisensi lain yang Anda gunakan).
